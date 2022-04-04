@@ -1221,6 +1221,12 @@ MainWndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 					
 					break;
 				}
+
+#ifdef FIX_BUGS 
+		         case GS_PLAYING_GAME:
+			        if(!LOWORD(wParam)) //  losing activation
+				        CGame::InitAfterFocusLoss();
+#endif
 			}
 			
 			CPad::GetPad(0)->Clear(false);
@@ -1303,15 +1309,13 @@ MainWndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 
-#ifdef FIX_BUGS // game turns on menu when focus is re-gained rather than lost
-		case WM_KILLFOCUS:
-#else
+#ifndef FIX_BUGS 
 		case WM_SETFOCUS:
-#endif
 		{
 			CGame::InitAfterFocusLoss();
 			break;
 		}
+#endif
 
 	}
 
