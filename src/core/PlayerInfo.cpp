@@ -349,7 +349,10 @@ CPlayerInfo::FindClosestCarSectorList(CPtrList& carList, CPed* ped, float unk1, 
 	for (CPtrNode* node = carList.first; node; node = node->next) {
 		CVehicle *car = (CVehicle*)node->item;
 		if(car->m_scanCode != CWorld::GetCurrentScanCode()) {
+/*	make ghost cars drivable
 			if (!car->bUsesCollision || !car->IsVehicle())
+*/
+			if(!car->IsVehicle())
 				continue;
 
 			car->m_scanCode = CWorld::GetCurrentScanCode();
