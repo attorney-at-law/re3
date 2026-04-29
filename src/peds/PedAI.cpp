@@ -4180,44 +4180,45 @@ CPed::GetNearestPassengerDoor(CVehicle *veh, CVector &posToOpen)
 		return true;
 	}
 
-	CVehicleModelInfo *vehModel = (CVehicleModelInfo *)CModelInfo::GetModelInfo(veh->GetModelIndex());
-	if(vehModel->m_numDoors == 4) {
-		CVector lrPos, rrPos;
-		bool canEnter = false;
-		CVector2D lrPosDist(999.0f, 999.0f);
-		CVector2D rrPosDist(999.0f, 999.0f);
-		if(!veh->pPassengers[1]
-			&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_LR)
-			&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_LR, nil)) {
-			lrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_LR);
-			canEnter = true;
-			lrPosDist = lrPos - GetPosition();
-		}
-		if (!veh->pPassengers[2]
-			&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RR)
-			&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RR, nil)) {
-			rrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_RR);
-			canEnter = true;
-			rrPosDist = rrPos - GetPosition();
-		}
+	if(veh->GetModelInfo()->m_numDoors < 4) 
+		return false;
 
-		// When the door we should enter is blocked by some object.
-		if(!canEnter) {
-			veh->ShufflePassengersToMakeSpace();
-			return false;
-		}
+	CVector lrPos, rrPos;
+	bool canEnter = false;
+	CVector2D lrPosDist(999.0f, 999.0f);
+	CVector2D rrPosDist(999.0f, 999.0f);
 
-		if(lrPosDist.MagnitudeSqr() < rrPosDist.MagnitudeSqr()) {
-			m_vehDoor = CAR_DOOR_LR;
-			posToOpen = lrPos;
-		} else {
-			m_vehDoor = CAR_DOOR_RR;
-			posToOpen = rrPos;
-		}
-		return true;
+	if(!veh->pPassengers[1]
+		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_LR)
+		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_LR, nil)) {
+		lrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_LR);
+		canEnter = true;
+		lrPosDist = lrPos - GetPosition();
 	}
 
-	return false;
+	if (!veh->pPassengers[2]
+		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RR)
+		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RR, nil)) {
+		rrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_RR);
+		canEnter = true;
+		rrPosDist = rrPos - GetPosition();
+	}
+
+	// When the door we should enter is blocked by some object.
+	if(!canEnter) {
+		veh->ShufflePassengersToMakeSpace();
+		return false;
+	}
+
+	if(lrPosDist.MagnitudeSqr() < rrPosDist.MagnitudeSqr()) {
+		m_vehDoor = CAR_DOOR_LR;
+		posToOpen = lrPos;
+	} else {
+		m_vehDoor = CAR_DOOR_RR;
+		posToOpen = rrPos;
+	}
+	return true;
+
 }
 
 void
