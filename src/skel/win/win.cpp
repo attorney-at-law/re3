@@ -1221,6 +1221,11 @@ MainWndProc(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 					
 					break;
 				}
+
+		        case GS_PLAYING_GAME:
+			        if(!LOWORD(wParam)) //  losing activation
+				        FrontEndMenuManager.m_bStartUpFrontEndRequested = true;
+
 			}
 			
 			CPad::GetPad(0)->Clear(false);
