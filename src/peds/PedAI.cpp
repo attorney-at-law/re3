@@ -4165,13 +4165,7 @@ bool
 CPed::GetNearestPassengerDoor(CVehicle *veh, CVector &posToOpen)
 {
 
-	if(veh->GetModelIndex() == MI_BUS) {
-		m_vehDoor = CAR_DOOR_RF;
-		posToOpen = GetPositionToOpenCarDoor(veh, CAR_DOOR_RF);
-		return true;
-	}
-
-	if (!veh->pPassengers[0]
+	if(veh->GetModelIndex() == MI_BUS || !veh->pPassengers[0]
 		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RF)
 		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RF, nil)) {
 
