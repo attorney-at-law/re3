@@ -152,13 +152,17 @@ void ChangePlayerCheat()
 		CHud::SetHelpMessage(TheText.Get("CHEAT1"), true);
 		CPlayerPed *ped = FindPlayerPed();
 		AssocGroupId AnimGrp = ped->m_animGroup;
-		do
-		{
-			do
-				modelId = CGeneral::GetRandomNumberInRange(0, MI_CAS_WOM+1);
-			while (!CModelInfo::GetModelInfo(modelId));
-		} while (modelId >= MI_SPECIAL01 && modelId <= MI_SPECIAL04 || modelId == MI_TAXI_D);
 
+		switch(modelId = ped->GetModelIndex()) {
+		case MI_CAS_WOM: 
+			modelId = MI_PLAYER;
+			break;
+		case MI_CRIMINAL02:
+			modelId = MI_MALE02;
+			break;
+		default:
+			modelId++;
+		}
 		uint8 flags = CStreaming::ms_aInfoForModel[modelId].m_flags;
 		ped->DeleteRwObject();
 		CStreaming::RequestModel(modelId, STREAMFLAGS_DEPENDENCY| STREAMFLAGS_DONT_REMOVE);
