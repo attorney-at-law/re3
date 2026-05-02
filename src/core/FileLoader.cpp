@@ -1380,11 +1380,11 @@ CFileLoader::LoadPedPathNode(const char *line, int id, int node)
 void
 CFileLoader::LoadCarPathNode(const char *line, int id, int node)
 {
-	int type, next, cross, numLeft, numRight;
+	int type, next, flags, numLeft, numRight;
 	float x, y, z, width;
 
-	sscanf(line, "%d %d %d %f %f %f %f %d %d", &type, &next, &cross, &x, &y, &z, &width, &numLeft, &numRight);
-	ThePaths.StoreNodeInfoCar(id, node, type, next, x, y, z, 0, numLeft, numRight);
+	sscanf(line, "%d %d %d %f %f %f %f %d %d", &type, &next, &flags, &x, &y, &z, &width, &numLeft, &numRight);
+	ThePaths.StoreNodeInfoCar(id, node, type, next, (int16)x, (int16)y, (int16)z, 0, numLeft, numRight, flags);
 }
 
 

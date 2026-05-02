@@ -4,6 +4,7 @@
 #ifdef __MWERKS__
 #define VANILLA_DEFINES
 #endif
+#include "stdint.h"
 
 enum Config {
 	NUMPLAYERS = 1,	// 4 on PS2
@@ -74,7 +75,8 @@ enum Config {
 	NUMATTRIBZONES = 288,
 	NUMZONEINDICES = 55000,
 
-	PATHNODESIZE = 4500,
+	PATHNODESIZE = INT16_MAX,
+	//	PATHNODESIZE = 4500,
 
 	NUMWEATHERS = 4,
 	NUMHOURS = 24,

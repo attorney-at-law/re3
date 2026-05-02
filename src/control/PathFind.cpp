@@ -245,6 +245,8 @@ CPathFind::Init(void)
 void
 CPathFind::AllocatePathFindInfoMem(int16 numPathGroups)
 {
+	// Adi: numPathGroups shouldn't be used now
+	numPathGroups = PATHNODESIZE;
 	delete[] InfoForTileCars;
 	InfoForTileCars = nil;
 	delete[] InfoForTilePeds;
@@ -286,7 +288,9 @@ CPathFind::StoreNodeInfoPed(int16 id, int16 node, int8 type, int8 next, int16 x,
 	InfoForTilePeds[i].z = z;
 	InfoForTilePeds[i].numLeftLanes = 0;
 	InfoForTilePeds[i].numRightLanes = 0;
-	InfoForTilePeds[i].crossing = crossing;
+	InfoForTilePeds[i].flags = 0;
+	if (crossing)
+		InfoForTilePeds[i].flags |= FLAG_CROSSES_ROAD;
 
 	if(type)
 		for(i = 0; i < node; i++){
@@ -301,7 +305,7 @@ CPathFind::StoreNodeInfoPed(int16 id, int16 node, int8 type, int8 next, int16 x,
 }
 
 void
-CPathFind::StoreNodeInfoCar(int16 id, int16 node, int8 type, int8 next, int16 x, int16 y, int16 z, int16 width, int8 numLeft, int8 numRight)
+CPathFind::StoreNodeInfoCar(int16 id, int16 node, int8 type, int8 next, int16 x, int16 y, int16 z, int16 width, int8 numLeft, int8 numRight, uint8 flags)
 {
 	int i, j;
 
@@ -313,6 +317,7 @@ CPathFind::StoreNodeInfoCar(int16 id, int16 node, int8 type, int8 next, int16 x,
 	InfoForTileCars[i].z = z;
 	InfoForTileCars[i].numLeftLanes = numLeft;
 	InfoForTileCars[i].numRightLanes = numRight;
+	InfoForTileCars[i].flags = flags;
 
 
 	if(type)
@@ -414,7 +419,12 @@ CPathFind::PreparePathData(void)
 					numIntern++;
 			}
 
-			if(numIntern == 1 && numExtern == 2){
+			// why limit it to 3 node objects?
+#ifdef FIX_BUGS
+			if(numExtern == 2){
+#else
+			if (numIntern == 1 && numExtern == 2) {
+#endif
 				if(numLanes < 4){
 					if((i & 7) == 4){		// 1/8 probability
 						m_objectFlags[i] |= UseInRoadBlock;
@@ -532,6 +542,9 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 	int start;
 	float posx, posy;
 	float dx, dy, mag;
+#ifdef FIX_BUGS
+	float dz;
+#endif
 	float nearestDist;
 	int nearestId;
 	int next;
@@ -613,8 +626,16 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 				if(Abs(dx) < nearestDist){
 					dy = tempnodes[k].pos.y - CoorsXFormed.y;
 					if(Abs(dy) < nearestDist){
+#ifdef FIX_BUGS
+						dz = tempnodes[k].pos.z - CoorsXFormed.z;
+						if(Abs(dz) < nearestDist){
+							nearestDist = Max(Max(Abs(dx), Abs(dy)), Abs(dz));
+							nearestId = k;
+						}
+#else
 						nearestDist = Max(Abs(dx), Abs(dy));
 						nearestId = k;
+#endif
 					}
 				}
 			}
@@ -634,6 +655,7 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 				if(type == PATH_CAR){
 					tempnodes[TempListLength].numLeftLanes = objectpathinfo[start + j].numLeftLanes;
 					tempnodes[TempListLength].numRightLanes = objectpathinfo[start + j].numRightLanes;
+					tempnodes[TempListLength].blockOneWayRoadSwitch = !!(objectpathinfo[start + j].flags & FLAG_BLOCK_ONE_WAY_ROAD_SWITCH);
 				}
 				tempnodes[TempListLength++].linkState = 1;
 			}else{
@@ -646,6 +668,9 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 						next++;
 				}
 				tempnodes[nearestId].link2 = m_mapObjects[i]->m_nodeIndices[type][next];
+				if (type == PATH_CAR && !tempnodes[nearestId].blockOneWayRoadSwitch) {
+					tempnodes[nearestId].blockOneWayRoadSwitch = !!(objectpathinfo[start + j].flags & FLAG_BLOCK_ONE_WAY_ROAD_SWITCH);
+				}
 				tempnodes[nearestId].linkState = 2;
 
 				// collapse this node with nearest we found
@@ -713,6 +738,7 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 					m_carPathLinks[m_numCarPathLinks].numLeftLanes = tempnodes[j].numLeftLanes;
 					m_carPathLinks[m_numCarPathLinks].numRightLanes = tempnodes[j].numRightLanes;
 					m_carPathLinks[m_numCarPathLinks].trafficLightType = 0;
+					m_carPathLinks[m_numCarPathLinks].bBlockOneWayRoadSwitch = tempnodes[j].blockOneWayRoadSwitch;
 					assert(m_numCarPathLinks <= NUM_CARPATHLINKS);
 					m_carPathConnections[m_numConnections] = m_numCarPathLinks++;
 				}
@@ -779,13 +805,20 @@ CPathFind::PreparePathDataForType(uint8 type, CTempNode *tempnodes, CPathInfoFor
 						m_carPathLinks[m_numCarPathLinks].numLeftLanes = -1;
 						m_carPathLinks[m_numCarPathLinks].numRightLanes = -1;
 						m_carPathLinks[m_numCarPathLinks].trafficLightType = 0;
+						// Blocks one way road switch
+						if (objectpathinfo[istart + iseg].next == jseg && !!(objectpathinfo[istart + iseg].flags & FLAG_BLOCK_ONE_WAY_ROAD_SWITCH) ||
+							objectpathinfo[jstart + jseg].next == iseg && !!(objectpathinfo[jstart + jseg].flags & FLAG_BLOCK_ONE_WAY_ROAD_SWITCH))
+							m_carPathLinks[m_numCarPathLinks].bBlockOneWayRoadSwitch = true;
+						else
+							m_carPathLinks[m_numCarPathLinks].bBlockOneWayRoadSwitch = false;
+
 						assert(m_numCarPathLinks <= NUM_CARPATHLINKS);
 						m_carPathConnections[m_numConnections] = m_numCarPathLinks++;
 					}
 				}else{
 					// Crosses road
-					if(objectpathinfo[istart + iseg].next == jseg && objectpathinfo[istart + iseg].crossing ||
-					   objectpathinfo[jstart + jseg].next == iseg && objectpathinfo[jstart + jseg].crossing)
+					if (objectpathinfo[istart + iseg].next == jseg && !!(objectpathinfo[istart + iseg].flags & FLAG_CROSSES_ROAD) ||
+						objectpathinfo[jstart + jseg].next == iseg && !!(objectpathinfo[jstart + jseg].flags & FLAG_CROSSES_ROAD))
 						m_connectionFlags[m_numConnections].bCrossesRoad = true;
 					else
 						m_connectionFlags[m_numConnections].bCrossesRoad = false;
@@ -1459,7 +1492,7 @@ CPathFind::FindNextNodeWandering(uint8 type, CVector coors, CPathNode **lastNode
 		pedCoors.z += 1.0f;
 		CVector nodeCoors = m_pathNodes[next].GetPosition();
 		nodeCoors.z += 1.0f;
-		if(!CWorld::GetIsLineOfSightClear(pedCoors, nodeCoors, true, false, false, false, false, false))
+		if(!CWorld::GetIsLineOfSightClear(pedCoors, nodeCoors, true, false, false, false, false, false, false))
 			continue;
 		CVector2D nodeDir = m_pathNodes[next].GetPosition() - node->GetPosition();
 		nodeDir.Normalise();
@@ -1501,7 +1534,7 @@ CPathFind::FindNextNodeWandering(uint8 type, CVector coors, CPathNode **lastNode
 	}
 }
 
-static CPathNode *apNodesToBeCleared[4995];
+static CPathNode *apNodesToBeCleared[INT16_MAX];
 
 void
 CPathFind::DoPathSearch(uint8 type, CVector start, int32 startNodeId, CVector target, CPathNode **nodes, int16 *pNumNodes, int16 maxNumNodes, CVehicle *vehicle, float *pDist, float distLimit, int32 targetNodeId)
