@@ -24,7 +24,7 @@ bool CVehicle::bWheelsOnlyCheat;
 bool CVehicle::bAllDodosCheat;
 bool CVehicle::bCheat3;
 bool CVehicle::bCheat4;
-bool CVehicle::bCheat5;
+bool CVehicle::bCheat5 = TRUE;
 #ifdef ALT_DODO_CHEAT
 bool CVehicle::bAltDodoCheat;
 #endif
@@ -237,58 +237,8 @@ const float fSpinSpeedRes = 20.0f;
 void
 CVehicle::FlyingControl(eFlightModel flightModel)
 {
-	switch(flightModel){
-	case FLIGHT_MODEL_DODO:
-	{
-		// This seems pretty magic
+	if(flightModel != FLIGHT_MODEL_HELI) 
 
-		// Move Left/Right
-		float moveSpeed = m_vecMoveSpeed.Magnitude();
-		float sideSpeed = DotProduct(m_vecMoveSpeed, GetRight());
-		float sideImpulse = -1.0f * sideSpeed / moveSpeed;
-		float fwdSpeed = DotProduct(m_vecMoveSpeed, GetForward());
-		float magic = m_vecMoveSpeed.MagnitudeSqr() * sq(fwdSpeed);
-		float turnImpulse = (sideImpulse*0.003f + m_fSteerAngle*0.001f) *
-			magic*m_fTurnMass*CTimer::GetTimeStep();
-		ApplyTurnForce(turnImpulse*GetRight(), -4.0f*GetForward());
-
-		float impulse = sideImpulse*0.2f *
-			magic*m_fMass*CTimer::GetTimeStep();
-		ApplyMoveForce(impulse*GetRight());
-		ApplyTurnForce(impulse*GetRight(), 2.0f*GetUp());
-
-
-		// Move Up/Down
-		moveSpeed = m_vecMoveSpeed.Magnitude();
-		float upSpeed = DotProduct(m_vecMoveSpeed, GetUp());
-		float upImpulse = -1.0f * upSpeed / moveSpeed;
-		turnImpulse = (upImpulse*0.002f + -CPad::GetPad(0)->GetSteeringUpDown()/128.0f*0.001f) *
-			magic*m_fTurnMass*CTimer::GetTimeStep();
-		ApplyTurnForce(turnImpulse*GetUp(), -4.0f*GetForward());
-
-		impulse = (upImpulse*3.5f + 0.5f)*0.05f *
-			magic*m_fMass*CTimer::GetTimeStep();
-		if(GRAVITY*m_fMass*CTimer::GetTimeStep() < impulse &&
-		   GetPosition().z > 100.0f)
-			impulse = 0.9f*GRAVITY*m_fMass*CTimer::GetTimeStep();
-		CVector com = Multiply3x3(GetMatrix(), m_vecCentreOfMass);
-		ApplyMoveForce(impulse*GetUp());
-		ApplyTurnForce(impulse*GetUp(), 2.0f*GetUp() + com);
-
-
-		m_vecTurnSpeed.y *= Pow(0.9f, CTimer::GetTimeStep());
-		moveSpeed = m_vecMoveSpeed.MagnitudeSqr();
-		if(moveSpeed > SQR(1.5f))
-			m_vecMoveSpeed *= 1.5f/Sqrt(moveSpeed);
-
-		float turnSpeed = m_vecTurnSpeed.MagnitudeSqr();
-		if(turnSpeed > SQR(0.2f))
-			m_vecTurnSpeed *= 0.2f/Sqrt(turnSpeed);
-		break;
-	}
-
-	case FLIGHT_MODEL_RCPLANE:
-	case FLIGHT_MODEL_SEAPLANE:
 	{
 		// thrust
 		float fThrust = flightModel == FLIGHT_MODEL_RCPLANE ? fRCAeroThrust : fSeaThrust;
@@ -361,12 +311,6 @@ CVehicle::FlyingControl(eFlightModel flightModel)
 		else
 			fLiftAccel = (fSeaFormLiftMult - fSeaAttackLiftMult * fLift) * SQR(fForwSpeed);
 		float fLiftImpulse = fLiftAccel * m_fMass * CTimer::GetTimeStep();
-		if (GRAVITY * CTimer::GetTimeStep() * m_fMass < fLiftImpulse) {
-			if (flightModel == FLIGHT_MODEL_RCPLANE && GetPosition().z > 50.0f)
-				fLiftImpulse = CTimer::GetTimeStep() * 0.9f*GRAVITY * m_fMass;
-			else if (flightModel == FLIGHT_MODEL_SEAPLANE && GetPosition().z > 80.0f)
-				fLiftImpulse = CTimer::GetTimeStep() * 0.9f*GRAVITY * m_fMass;
-		}
 		ApplyMoveForce(fLiftImpulse * GetUp());
 
 		CVector vecResistance;
@@ -383,10 +327,7 @@ CVehicle::FlyingControl(eFlightModel flightModel)
 		vecTurnSpeed.z *= rZ;
 		m_vecTurnSpeed = Multiply3x3(GetMatrix(), vecTurnSpeed);
 		ApplyTurnForce(-GetUp() * fResistance * m_fTurnMass, GetRight() + Multiply3x3(GetMatrix(), m_vecCentreOfMass));
-		break;
-	}
-	case FLIGHT_MODEL_HELI:
-	{
+	}else{
 		CVector vecMoveResistance;
 		if (GetModelIndex() == MI_MIAMI_SPARROW)
 			vecMoveResistance = vecHeliMoveRes;
@@ -406,7 +347,7 @@ CVehicle::FlyingControl(eFlightModel flightModel)
 		else
 			fThrust = fThrustVar * (CPad::GetPad(0)->GetAccelerate() - 2 * CPad::GetPad(0)->GetBrake()) / 255.0f + 0.95f;
 		fThrust -= fRotorFallOff * DotProduct(m_vecMoveSpeed, GetUp());
-#if GTA_VERSION >= GTA3_PC_11
+#if FALSE //GTA_VERSION >= GTA3_PC_11
 		if (fThrust > 0.9f && GetPosition().z > 80.0f)
 			fThrust = 0.9f;
 #endif
@@ -453,8 +394,6 @@ CVehicle::FlyingControl(eFlightModel flightModel)
 		vecTurnSpeed.z *= fResistanceMultiplier;
 		m_vecTurnSpeed = Multiply3x3(GetMatrix(), vecTurnSpeed);
 		ApplyTurnForce(-GetRight() * fResistance * m_fTurnMass, GetForward() + Multiply3x3(GetMatrix(), m_vecCentreOfMass));
-		break;
-	}
 	}
 }
 
