@@ -25,6 +25,7 @@
 #include "CdStream.h"
 #include "FileLoader.h"
 #include "MemoryHeap.h"
+#include <string>
 
 char CFileLoader::ms_line[256];
 
@@ -1127,6 +1128,7 @@ CFileLoader::LoadObject(const char *line)
 	mi->m_firstDamaged = damaged;
 	mi->SetTexDictionary(txd);
 	MatchModelString(model, id);
+	mi->m_isCodeGlass = std::string(model).find("glass") != std::string::npos;
 }
 
 int

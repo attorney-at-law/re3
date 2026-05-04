@@ -35,6 +35,7 @@ public:
 	uint16  m_isSubway      : 1;
 	uint16  m_ignoreLight   : 1;
 	uint16  m_noZwrite      : 1;
+	uint16	m_isCodeGlass	: 1;
 
 	CSimpleModelInfo(void) : CBaseModelInfo(MITYPE_SIMPLE) {}
 	CSimpleModelInfo(ModelInfoType id) : CBaseModelInfo(id) {}
