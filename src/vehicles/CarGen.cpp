@@ -52,8 +52,8 @@ void CCarGenerator::DoInternalProcessing()
 			--CTheCarGenerators::CurrentActiveCount;
 		return;
 	}
-	if (CCarCtrl::NumParkedCars >= 10)
-		return;
+//	if (CCarCtrl::NumParkedCars >= 10)
+//		return;
 	CStreaming::RequestModel(m_nModelIndex, STREAMFLAGS_DEPENDENCY);
 	if (!CStreaming::HasModelLoaded(m_nModelIndex))
 		return;

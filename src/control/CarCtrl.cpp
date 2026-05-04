@@ -1513,13 +1513,16 @@ void CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle)
 	int32 curNode = pVehicle->AutoPilot.m_nNextRouteNode;
 	uint8 totalLinks = ThePaths.m_pathNodes[curNode].numLinks;
 	CCarPathLink* pCurLink = &ThePaths.m_carPathLinks[pVehicle->AutoPilot.m_nNextPathNodeInfo];
-#ifdef FIX_BUGS
-	uint8 lanesOnCurrentPath = pCurLink->pathNodeIndex == curNode ?
-		pCurLink->numLeftLanes : pCurLink->numRightLanes;
-#else
-	uint8 lanesOnCurrentPath = pCurLink->pathNodeIndex == curNode ?
-		pCurLink->numRightLanes : pCurLink->numLeftLanes;
-#endif
+	uint8 lanesOnCurrentPath;
+	bool isOnOneWayRoad;
+	if (pCurLink->pathNodeIndex == curNode) {
+		lanesOnCurrentPath = pCurLink->numLeftLanes;
+		isOnOneWayRoad = pCurLink->numRightLanes == 0 && pCurLink->bBlockOneWayRoadSwitch;
+	}
+	else {
+		lanesOnCurrentPath = pCurLink->numRightLanes;
+		isOnOneWayRoad = pCurLink->numLeftLanes == 0 && pCurLink->bBlockOneWayRoadSwitch;
+	}
 	uint8 allowedDirections = PATH_DIRECTION_NONE;
 	uint8 nextLane = pVehicle->AutoPilot.m_nNextLane;
 	if (nextLane == 0)
@@ -1541,6 +1544,7 @@ void CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle)
 	CCarPathLink* pNextLink;
 	CPathNode* pNextPathNode;
 	bool goingAgainstOneWayRoad;
+	bool nextNodeIsOneWayRoad;
 	uint8 direction;
 	for(attempt = 0; attempt < ATTEMPTS_TO_FIND_NEXT_NODE; attempt++){
 		if (attempt != 0){
@@ -1550,7 +1554,7 @@ void CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle)
 					if ((!pNextPathNode->bDeadEnd || pPrevPathNode->bDeadEnd) &&
 						(!pNextPathNode->bDisabled || pPrevPathNode->bDisabled) &&
 						(!pNextPathNode->bBetweenLevels || pPrevPathNode->bBetweenLevels || !pVehicle->AutoPilot.m_bStayInCurrentLevel) &&
-						!goingAgainstOneWayRoad)
+						!goingAgainstOneWayRoad && (!isOnOneWayRoad || !nextNodeIsOneWayRoad))
 						break;
 				}
 			}
@@ -1560,6 +1564,7 @@ void CCarCtrl::PickNextNodeRandomly(CVehicle* pVehicle)
 		direction = FindPathDirection(prevNode, curNode, pVehicle->AutoPilot.m_nNextRouteNode);
 		pNextLink = &ThePaths.m_carPathLinks[ThePaths.m_carPathConnections[nextLink + pCurPathNode->firstLink]];
 		goingAgainstOneWayRoad = pNextLink->pathNodeIndex == curNode ? pNextLink->numRightLanes == 0 : pNextLink->numLeftLanes == 0;
+		nextNodeIsOneWayRoad = pNextLink->pathNodeIndex == curNode ? pNextLink->numLeftLanes == 0 : pNextLink->numRightLanes == 0;
 	}
 	if (attempt >= ATTEMPTS_TO_FIND_NEXT_NODE) {
 		/* If we failed 15 times, then remove dead end and current lane limitations */
