@@ -251,7 +251,7 @@ enum Config {
 	#undef DRAW_GAME_VERSION_TEXT
 #else
 	// not in master builds
-//	#define VALIDATE_SAVE_SIZE
+	#define VALIDATE_SAVE_SIZE
 
 	#define DEBUGMENU
 #endif
@@ -336,7 +336,7 @@ enum Config {
 #define DETECT_PAD_INPUT_SWITCH // Adds automatic switch of pad related stuff between controller and kb/m
 #define KANGAROO_CHEAT
 #define ALLCARSHELI_CHEAT
-#define ALT_DODO_CHEAT
+//#define ALT_DODO_CHEAT
 #define REGISTER_START_BUTTON
 #define BIND_VEHICLE_FIREWEAPON // Adds ability to rebind fire key for 'in vehicle' controls
 #define BUTTON_ICONS // use textures to show controller buttons

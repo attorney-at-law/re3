@@ -1862,18 +1862,11 @@ CPhysical::ProcessCollision(void)
 	m_bIsVehicleBeingShifted = false;
 	bSkipLineCol = false;
 
-//	Prevent Ghost Cars from transforming
-	if(!bUsesCollision){
-		switch(GetStatus()) {		
-		case STATUS_PLAYER:
-		case STATUS_PLAYER_REMOTE:
-			break;
-		default:
-			bIsStuck = false;
-			bIsInSafePosition = true;
-			RemoveAndAdd();
-			return;
-		}
+	if(!bUsesCollision && GetStatus() != STATUS_PLAYER) {
+		bIsStuck = false;
+		bIsInSafePosition = true;
+		RemoveAndAdd();
+		return;
 	}
 
 	if(GetStatus() == STATUS_SIMPLE){

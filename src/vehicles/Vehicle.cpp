@@ -24,7 +24,7 @@ bool CVehicle::bWheelsOnlyCheat;
 bool CVehicle::bAllDodosCheat;
 bool CVehicle::bCheat3;
 bool CVehicle::bCheat4;
-bool CVehicle::bCheat5 = TRUE;
+bool CVehicle::bCheat5;
 #ifdef ALT_DODO_CHEAT
 bool CVehicle::bAltDodoCheat;
 #endif
@@ -238,7 +238,6 @@ void
 CVehicle::FlyingControl(eFlightModel flightModel)
 {
 	if(flightModel != FLIGHT_MODEL_HELI) 
-
 	{
 		// thrust
 		float fThrust = flightModel == FLIGHT_MODEL_RCPLANE ? fRCAeroThrust : fSeaThrust;
@@ -347,10 +346,6 @@ CVehicle::FlyingControl(eFlightModel flightModel)
 		else
 			fThrust = fThrustVar * (CPad::GetPad(0)->GetAccelerate() - 2 * CPad::GetPad(0)->GetBrake()) / 255.0f + 0.95f;
 		fThrust -= fRotorFallOff * DotProduct(m_vecMoveSpeed, GetUp());
-#if FALSE //GTA_VERSION >= GTA3_PC_11
-		if (fThrust > 0.9f && GetPosition().z > 80.0f)
-			fThrust = 0.9f;
-#endif
 		ApplyMoveForce(GRAVITY * GetUp() * fThrust * m_fMass * CTimer::GetTimeStep());
 
 		if (GetUp().z > 0.0f)

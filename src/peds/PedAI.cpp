@@ -4164,55 +4164,68 @@ CPed::GetNearestDoor(CVehicle *veh, CVector &posToOpen)
 bool
 CPed::GetNearestPassengerDoor(CVehicle *veh, CVector &posToOpen)
 {
+	CVector rfPos, lrPos, rrPos;
+	bool canEnter = false;
 
-	if(veh->GetModelIndex() == MI_BUS || !veh->pPassengers[0]
-		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RF)
-		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RF, nil)) {
+	CVehicleModelInfo *vehModel = (CVehicleModelInfo *)CModelInfo::GetModelInfo(veh->GetModelIndex());
 
-		posToOpen = GetPositionToOpenCarDoor(veh, CAR_DOOR_RF);
-		m_vehDoor = CAR_DOOR_RF;
-		return true;
+	switch (veh->GetModelIndex()) {
+		case MI_BUS:
+			m_vehDoor = CAR_DOOR_RF;
+			posToOpen = GetPositionToOpenCarDoor(veh, CAR_DOOR_RF);
+			return true;
+		case MI_RHINO:
+		default:
+			break;
 	}
 
-	if(veh->GetModelInfo()->m_numDoors < 4) 
-		return false;
-
-	CVector lrPos, rrPos;
-	bool canEnter = false;
+	CVector2D rfPosDist(999.0f, 999.0f);
 	CVector2D lrPosDist(999.0f, 999.0f);
 	CVector2D rrPosDist(999.0f, 999.0f);
 
-	if(!veh->pPassengers[1]
-		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_LR)
-		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_LR, nil)) {
-		lrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_LR);
+	if (!veh->pPassengers[0]
+		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RF)
+		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RF, nil)) {
+
+		rfPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_RF);
 		canEnter = true;
-		lrPosDist = lrPos - GetPosition();
+		rfPosDist = rfPos - GetPosition();
+	}
+	if (vehModel->m_numDoors == 4) {
+		if (!veh->pPassengers[1]
+			&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_LR)
+			&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_LR, nil)) {
+			lrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_LR);
+			canEnter = true;
+			lrPosDist = lrPos - GetPosition();
+		}
+		if (!veh->pPassengers[2]
+			&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RR)
+			&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RR, nil)) {
+			rrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_RR);
+			canEnter = true;
+			rrPosDist = rrPos - GetPosition();
+		}
+
+		// When the door we should enter is blocked by some object.
+		if (!canEnter)
+			veh->ShufflePassengersToMakeSpace();
 	}
 
-	if (!veh->pPassengers[2]
-		&& !(veh->m_nGettingInFlags & CAR_DOOR_FLAG_RR)
-		&& veh->IsRoomForPedToLeaveCar(CAR_DOOR_RR, nil)) {
-		rrPos = GetPositionToOpenCarDoor(veh, CAR_DOOR_RR);
-		canEnter = true;
-		rrPosDist = rrPos - GetPosition();
-	}
-
-	// When the door we should enter is blocked by some object.
-	if(!canEnter) {
-		veh->ShufflePassengersToMakeSpace();
-		return false;
-	}
-
-	if(lrPosDist.MagnitudeSqr() < rrPosDist.MagnitudeSqr()) {
+	CVector2D nextToCompare = rfPosDist;
+	posToOpen = rfPos;
+	m_vehDoor = CAR_DOOR_RF;
+	if (lrPosDist.MagnitudeSqr() < nextToCompare.MagnitudeSqr()) {
 		m_vehDoor = CAR_DOOR_LR;
 		posToOpen = lrPos;
-	} else {
+		nextToCompare = lrPosDist;
+	}
+
+	if (rrPosDist.MagnitudeSqr() < nextToCompare.MagnitudeSqr()) {
 		m_vehDoor = CAR_DOOR_RR;
 		posToOpen = rrPos;
 	}
-	return true;
-
+	return canEnter;
 }
 
 void
