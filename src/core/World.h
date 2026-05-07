@@ -11,14 +11,14 @@
 #define SECTOR_SIZE_X (40.0f)
 #define SECTOR_SIZE_Y (40.0f)
 
-#define NUMSECTORS_X (100)
-#define NUMSECTORS_Y (100)
+#define NUMSECTORS_X (120)
+#define NUMSECTORS_Y (120)
 
 #define WORLD_SIZE_X (NUMSECTORS_X * SECTOR_SIZE_X)
 #define WORLD_SIZE_Y (NUMSECTORS_Y * SECTOR_SIZE_Y)
 
-#define WORLD_MIN_X (-2000.0f)
-#define WORLD_MIN_Y (-2000.0f)
+#define WORLD_MIN_X (-2400.0f)
+#define WORLD_MIN_Y (-2400.0f)
 
 #define WORLD_MAX_X (WORLD_MIN_X + WORLD_SIZE_X)
 #define WORLD_MAX_Y (WORLD_MIN_Y + WORLD_SIZE_Y)
