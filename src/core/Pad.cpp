@@ -34,6 +34,7 @@
 #include "PathFind.h"
 #include "Wanted.h"
 #include "General.h"
+#include "User.h"
 
 #ifdef GTA_PS2
 #include "eetypes.h"
@@ -138,10 +139,10 @@ void BlowUpCarsCheat()
 	CHud::SetHelpMessage(TheText.Get("CHEAT1"), true);
 
 	int i = CPools::GetVehiclePool()->GetSize();
-	while (i-- > 0) {
+	while (i-- > 0) 
 		if (CVehicle *veh = CPools::GetVehiclePool()->GetSlot(i))
-			veh->BlowUpCar(nil);
-	}
+			if(veh->GetStatus() != STATUS_PLAYER)
+				veh->BlowUpCar(nil);
 }
 
 void ChangePlayerCheat()
@@ -347,6 +348,16 @@ void AltDodoCheat(void)
 	CHud::SetHelpMessage(string, true);
 }
 #endif
+
+void
+FreezeTimerCheat()
+{
+	CHud::SetHelpMessage(TheText.Get(
+		(CUserDisplay::OnscnTimer.m_bDisabled = !CUserDisplay::OnscnTimer.m_bDisabled) 
+		 ? "CHEAT1" : "CHEATOF"
+	), true);
+
+}
 
 bool
 CControllerState::CheckForInput(void)
@@ -1027,6 +1038,10 @@ void CPad::AddToPCCheatString(char c)
 	if (!_CHEATCMP("ODODRETSAMOTTNAWI"))
 		AltDodoCheat();
 #endif
+
+	// "FREEZETIMER"
+	if (!_CHEATCMP("REMITEZEERF"))
+		FreezeTimerCheat();
 
 	#undef _CHEATCMP
 }
