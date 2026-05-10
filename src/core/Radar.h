@@ -189,8 +189,10 @@ public:
 	static void ShowRadarTrace(float x, float y, uint32 size, uint8 red, uint8 green, uint8 blue, uint8 alpha);
 	static void ShowRadarTraceWithHeight(float x, float y, uint32 size, uint8 red, uint8 green, uint8 blue, uint8 alpha, uint8 mode);
 	static void Shutdown();
+#ifndef MENU_MAP
 	static void StreamRadarSections(const CVector &posn);
 	static void StreamRadarSections(int32 x, int32 y);
+#endif
 	static void TransformRealWorldToTexCoordSpace(CVector2D &out, const CVector2D &in, int32 x, int32 y);
 	static void TransformRadarPointToRealWorldSpace(CVector2D &out, const CVector2D &in);
 	static void TransformRadarPointToScreenSpace(CVector2D &out, const CVector2D &in);

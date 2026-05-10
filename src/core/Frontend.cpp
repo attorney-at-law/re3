@@ -6389,60 +6389,15 @@ CMenuManager::PrintMap(void)
 		fMapCenterY = (-screenSpacePlayer.y) + SCREEN_HEIGHT / 2;
 	}
 
-	// Because fMapSize is half of the map length, and map consists of 3x3 tiles.
-	float halfTile = fMapSize / 3.0f;
-
 	// Darken background a bit
 	CSprite2d::DrawRect(CRect(0, 0,
 		SCREEN_WIDTH, SCREEN_HEIGHT),
 		CRGBA(0, 0, 0, FadeIn(128)));
 
-	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
-
-	if (SCREEN_WIDTH >= fMapCenterX - fMapSize || SCREEN_HEIGHT >= fMapCenterY - fMapSize) {
-		m_aMapSprites[MAPTOP1].Draw(CRect(fMapCenterX - fMapSize, fMapCenterY - fMapSize,
-			fMapCenterX - halfTile, fMapCenterY - halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX - halfTile || SCREEN_HEIGHT >= fMapCenterY - fMapSize) {
-		m_aMapSprites[MAPTOP2].Draw(CRect(fMapCenterX - halfTile, fMapCenterY - fMapSize,
-			fMapCenterX + halfTile, fMapCenterY - halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX + halfTile || SCREEN_HEIGHT >= fMapCenterY - fMapSize) {
-		m_aMapSprites[MAPTOP3].Draw(CRect(fMapCenterX + halfTile, fMapCenterY - fMapSize,
-			fMapCenterX + fMapSize, fMapCenterY - halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX - fMapSize || SCREEN_HEIGHT >= fMapCenterY - halfTile) {
-		m_aMapSprites[MAPMID1].Draw(CRect(fMapCenterX - fMapSize, fMapCenterY - halfTile,
-			fMapCenterX - halfTile, fMapCenterY + halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX - halfTile || SCREEN_HEIGHT >= fMapCenterY - halfTile) {
-		m_aMapSprites[MAPMID2].Draw(CRect(fMapCenterX - halfTile, fMapCenterY - halfTile,
-			fMapCenterX + halfTile, fMapCenterY + halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX + halfTile || SCREEN_HEIGHT >= fMapCenterY - halfTile) {
-		m_aMapSprites[MAPMID3].Draw(CRect(fMapCenterX + halfTile, fMapCenterY - halfTile,
-			fMapCenterX + fMapSize, fMapCenterY + halfTile), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX - fMapSize || SCREEN_HEIGHT >= fMapCenterY + halfTile) {
-		m_aMapSprites[MAPBOT1].Draw(CRect(fMapCenterX - fMapSize, fMapCenterY + halfTile,
-			fMapCenterX - halfTile, fMapCenterY + fMapSize), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX - halfTile || SCREEN_HEIGHT >= fMapCenterY + halfTile) {
-		m_aMapSprites[MAPBOT2].Draw(CRect(fMapCenterX - halfTile, fMapCenterY + halfTile,
-			fMapCenterX + halfTile, fMapCenterY + fMapSize), CRGBA(255, 255, 255, FadeIn(255)));
-	}
-
-	if (SCREEN_WIDTH >= fMapCenterX + halfTile || SCREEN_HEIGHT >= fMapCenterY + halfTile) {
-		m_aMapSprites[MAPBOT3].Draw(CRect(fMapCenterX + halfTile, fMapCenterY + halfTile,
-			fMapCenterX + fMapSize, fMapCenterY + fMapSize), CRGBA(255, 255, 255, FadeIn(255)));
-	}
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)rwFILTERLINEAR);
+	for(int i = 0; i < 8; ++i) 
+		for(int j = 0; j < 8; ++j) 
+			CRadar::DrawRadarSection(i, j);
 
 	CRadar::DrawBlips();
 	static CVector2D mapCrosshair;
@@ -6469,8 +6424,8 @@ CMenuManager::PrintMap(void)
 				mapCrosshair.x > fMapCenterX - fMapSize && mapCrosshair.x < fMapCenterX + fMapSize) {
 
 				float diffX = fMapCenterX - fMapSize, diffY = fMapCenterY - fMapSize;
-				float x = ((mapCrosshair.x - diffX) / (fMapSize * 2)) * 4000.0f - 2000.0f;
-				float y = 2000.0f - ((mapCrosshair.y - diffY) / (fMapSize * 2)) * 4000.0f;
+				float x = ((mapCrosshair.x - diffX) / fMapSize) * 4000.0f - 4000.0f;
+				float y = 4000.0f - ((mapCrosshair.y - diffY) / fMapSize) * 4000.0f;
 				CRadar::ToggleTargetMarker(x, y);
 				DMAudio.PlayFrontEndSound(SOUND_FRONTEND_MENU_SETTING_CHANGE, 0);
 			}

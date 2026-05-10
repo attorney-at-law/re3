@@ -2717,7 +2717,9 @@ CStreaming::LoadScene(const CVector &pos)
 	CCullZones::ForceCullZoneCoors(pos);
 	DeleteAllRwObjects();
 	AddModelsToRequestList(pos);
+#ifndef MENU_MAP
 	CRadar::StreamRadarSections(pos);
+#endif
 	RemoveUnusedBigBuildings(level);
 	RequestBigBuildings(level);
 	LoadAllRequestedModels(false);

@@ -114,11 +114,13 @@ void ClipRadarTileCoords(int32 &x, int32 &y)
 		y = RADAR_NUM_TILES-1;
 }
 
+#ifndef MENU_MAP
 void RequestMapSection(int32 x, int32 y)
 {
 	ClipRadarTileCoords(x, y);
 	CStreaming::RequestTxd(gRadarTxdIds[x + RADAR_NUM_TILES * y], STREAMFLAGS_DONT_REMOVE | STREAMFLAGS_DEPENDENCY);
 }
+#endif
 
 void RemoveMapSection(int32 x, int32 y)
 {
@@ -803,7 +805,9 @@ void CRadar::DrawRadarMap()
 	// top left ist (0, 0)
 	int x = Floor((vec2DRadarOrigin.x - RADAR_MIN_X) / RADAR_TILE_SIZE);
 	int y = Ceil((RADAR_NUM_TILES - 1) - (vec2DRadarOrigin.y - RADAR_MIN_Y) / RADAR_TILE_SIZE);
+#ifndef MENU_MAP
 	StreamRadarSections(x, y);
+#endif
 
 	RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
 	RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
@@ -1046,7 +1050,13 @@ CRadar::Initialise()
 
 	m_radarRange = 350.0f;
 	for (int i = 0; i < 64; i++) 
+#ifdef MENU_MAP
+		CStreaming::RequestTxd(
+		gRadarTxdIds[i] = CTxdStore::FindTxdSlot(gRadarTexNames[i]),
+		STREAMFLAGS_DONT_REMOVE | STREAMFLAGS_DEPENDENCY);
+#else
 		gRadarTxdIds[i] = CTxdStore::FindTxdSlot(gRadarTexNames[i]);
+#endif
 }
 
 float CRadar::LimitRadarPoint(CVector2D &point)
@@ -1345,6 +1355,7 @@ void CRadar::Shutdown()
 	RemoveRadarSections();
 }
 
+#ifndef MENU_MAP
 void CRadar::StreamRadarSections(const CVector &posn)
 {
 	StreamRadarSections(Floor((2000.0f + posn.x) / 500.0f), Ceil(7.0f - (2000.0f + posn.y) / 500.0f));
@@ -1361,6 +1372,7 @@ void CRadar::StreamRadarSections(int32 x, int32 y)
 		};
 	};
 }
+#endif
 
 void CRadar::TransformRealWorldToTexCoordSpace(CVector2D &out, const CVector2D &in, int32 x, int32 y)
 {
@@ -1502,7 +1514,7 @@ CRadar::InitFrontEndMap()
 	CalculateCachedSinCos();
 	vec2DRadarOrigin.x = 0.0f;
 	vec2DRadarOrigin.y = 0.0f;
-	m_radarRange = 1000.0f; // doesn't mean anything, just affects the calculation in TransformRadarPointToScreenSpace
+	m_radarRange = RADAR_MAX_X; // doesn't mean anything, just affects the calculation in TransformRadarPointToScreenSpace
 }
 
 void
