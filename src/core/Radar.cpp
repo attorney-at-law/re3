@@ -767,7 +767,7 @@ void CRadar::DrawBlips()
 			TransformRealWorldPointToRadarSpace(in, FindPlayerCentreOfWorld_NoSniperShift());
 			LimitRadarPoint(in);
 			TransformRadarPointToScreenSpace(out, in);
-			DrawYouAreHereSprite(out.x, out.y);
+			DrawRotatingRadarSprite(&CentreSprite, out.x, out.y, PI + FindPlayerHeading(), 255);
 		}
 #endif
 	}
@@ -1515,33 +1515,6 @@ CRadar::InitFrontEndMap()
 	vec2DRadarOrigin.x = 0.0f;
 	vec2DRadarOrigin.y = 0.0f;
 	m_radarRange = RADAR_MAX_X; // doesn't mean anything, just affects the calculation in TransformRadarPointToScreenSpace
-}
-
-void
-CRadar::DrawYouAreHereSprite(float x, float y)
-{
-	static uint32 lastChange = 0;
-	static bool show = true;
-
-	if (show) {
-		if (CTimer::GetTimeInMillisecondsPauseMode() - lastChange > 500) {
-			lastChange = CTimer::GetTimeInMillisecondsPauseMode();
-			show = !show;
-		}
-	} else {
-		if (CTimer::GetTimeInMillisecondsPauseMode() - lastChange > 200) {
-			lastChange = CTimer::GetTimeInMillisecondsPauseMode();
-			show = !show;
-		}
-	}
-
-	if (show) {
-		float left = x - SCREEN_SCALE_X(12.0f);
-		float top = y;
-		float right = SCREEN_SCALE_X(12.0) + x;
-		float bottom = y - SCREEN_SCALE_Y(24.0f);
-		CentreSprite.Draw(CRect(left, top, right, bottom), CRGBA(255, 255, 255, 255));
-	}
 }
 
 void

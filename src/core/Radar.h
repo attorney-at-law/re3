@@ -152,7 +152,6 @@ public:
 	static CVector TargetMarkerPos;
 
 	static void InitFrontEndMap();
-	static void DrawYouAreHereSprite(float, float);
 	static void ToggleTargetMarker(float, float);
 #endif
 	static uint8 CalculateBlipAlpha(float dist);

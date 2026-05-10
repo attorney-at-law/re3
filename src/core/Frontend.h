@@ -731,7 +731,6 @@ public:
 	static float fMapSize;
 	static float fMapCenterY;
 	static float fMapCenterX;
-	static CSprite2d m_aMapSprites[NUM_MAP_SPRITES];
 	void PrintMap();
 #endif
 

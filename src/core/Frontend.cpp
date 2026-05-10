@@ -241,21 +241,6 @@ const char* FrontendFilenames[][2] = {
 	{"fe_radio9", "" },
 };
 
-#ifdef MENU_MAP
-const char* MapFilenames[][2] = {
-	{"mapMid01", "mapMid01A"},
-	{"mapMid02", "mapMid02A"},
-	{"mapMid03", "mapMid03A"},
-	{"mapBot01", "mapBot01A"},
-	{"mapBot02", "mapBot02A"},
-	{"mapBot03", "mapBot03A"},
-	{"mapTop01", "mapTop01A"},
-	{"mapTop02", "mapTop02A"},
-	{"mapTop03", "mapTop03A"},
-};
-CSprite2d CMenuManager::m_aMapSprites[NUM_MAP_SPRITES];
-#endif
-
 // 0x5F3344
 const char* MenuFilenames[][2] = {
 	{"connection24", ""},
@@ -3647,18 +3632,7 @@ CMenuManager::LoadAllTextures()
 		m_aMenuSprites[i].SetAddressing(rwTEXTUREADDRESSBORDER);
 	}
 #ifdef MENU_MAP
-	static bool menuOptionAdded = false;
-	for (int i = 0; i < ARRAY_SIZE(MapFilenames); i++) {
-		RwTexture *firstTile;
-		if (!menuOptionAdded && (firstTile = RwTextureRead(MapFilenames[i][0], MapFilenames[i][1]))) {
-			RwTextureDestroy(firstTile);
-			FrontendOptionSetCursor(MENUPAGE_PAUSE_MENU, 2, false);
-			FrontendOptionAddBuiltinAction("FEG_MAP", MENUACTION_CHANGEMENU, MENUPAGE_MAP, SAVESLOT_NONE);
-			menuOptionAdded = true;
-		}
-		m_aMapSprites[i].SetTexture(MapFilenames[i][0], MapFilenames[i][1]);
-		m_aMapSprites[i].SetAddressing(rwTEXTUREADDRESSBORDER);
-	}
+//	FrontendOptionSetCursor(MENUPAGE_PAUSE_MENU, 2, false);
 	fMapSize = SCREEN_HEIGHT * 2.0f;
 	fMapCenterX = 0.0f;
 	fMapCenterY = 0.0f;
@@ -5789,10 +5763,6 @@ CMenuManager::UnloadTextures()
 	printf("REMOVE menu textures\n");
 	for (int i = 0; i < ARRAY_SIZE(MenuFilenames); ++i)
 		m_aMenuSprites[i].Delete();
-#ifdef MENU_MAP
-	for (int i = 0; i < ARRAY_SIZE(MapFilenames); ++i)
-		m_aMapSprites[i].Delete();
-#endif
 	int menu = CTxdStore::FindTxdSlot("menu");
 	CTxdStore::RemoveTxd(menu);
 
