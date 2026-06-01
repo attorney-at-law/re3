@@ -199,4 +199,5 @@ public:
 
 	// no in CRadar in the game:	
 	static void CalculateCachedSinCos();
+	static bool bShowHiddenPackages;
 };

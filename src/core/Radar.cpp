@@ -25,6 +25,7 @@ float CRadar::m_radarRange;
 sRadarTrace CRadar::ms_RadarTrace[NUMRADARBLIPS];
 CVector2D vec2DRadarOrigin;
 int32 gRadarTxdIds[64];
+bool CRadar::bShowHiddenPackages = 0;
 
 CSprite2d CRadar::AsukaSprite;
 CSprite2d CRadar::BombSprite;
@@ -762,27 +763,27 @@ void CRadar::DrawBlips()
 					break;
 			}
 		}
-
-		for(int slot = NUMPICKUPS - 1; slot >= 0; slot--) 
-			if(CPickups::aPickUps[slot].m_eType == PICKUP_COLLECTABLE1) {
-				TransformRealWorldPointToRadarSpace(in, (CPickups::aPickUps[slot].m_vecPos));
-				float dist = LimitRadarPoint(in);
-				TransformRadarPointToScreenSpace(out, in);
+		if(bShowHiddenPackages)
+			for(int slot = NUMPICKUPS - 1; slot >= 0; slot--) 
+				if(CPickups::aPickUps[slot].m_eType == PICKUP_COLLECTABLE1) {
+					TransformRealWorldPointToRadarSpace(in, (CPickups::aPickUps[slot].m_vecPos));
+					float dist = LimitRadarPoint(in);
+					TransformRadarPointToScreenSpace(out, in);
 #ifdef TRIANGULAR_BLIPS
-				const CVector &pos = FindPlayerCentreOfWorld_NoSniperShift();
-				const CVector &blipPos = CPickups::aPickUps[slot].m_vecPos;
-				uint8 mode = BLIP_MODE_TRIANGULAR_UP;
-				if(blipPos.z - pos.z <= 2.0f) {
-					if(blipPos.z - pos.z < -4.0f)
-						mode = BLIP_MODE_TRIANGULAR_DOWN;
-					else
-						mode = BLIP_MODE_SQUARE;
-				}
-				ShowRadarTraceWithHeight(out.x, out.y, 1, 255, 255, 255, 255, mode);
+					const CVector &pos = FindPlayerCentreOfWorld_NoSniperShift();
+					const CVector &blipPos = CPickups::aPickUps[slot].m_vecPos;
+					uint8 mode = BLIP_MODE_TRIANGULAR_UP;
+					if(blipPos.z - pos.z <= 2.0f) {
+						if(blipPos.z - pos.z < -4.0f)
+							mode = BLIP_MODE_TRIANGULAR_DOWN;
+						else
+							mode = BLIP_MODE_SQUARE;
+					}
+					ShowRadarTraceWithHeight(out.x, out.y, 1, 255, 255, 255, 255, mode);
 #else
-				ShowRadarTrace(out.x, out.y, 1, 255, 255, 255, 255);
+					ShowRadarTrace(out.x, out.y, 1, 255, 255, 255, 255);
 #endif
-			}
+				}
 
 
 #ifdef MENU_MAP

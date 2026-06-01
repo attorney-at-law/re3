@@ -289,6 +289,13 @@ void StrongGripCheat()
 	CVehicle::bCheat3 = !CVehicle::bCheat3;
 }
 
+void FannyMagnetCheat()
+{
+	CHud::SetHelpMessage(TheText.Get((
+		CPed::bFannyMagnetCheat = !CPed::bFannyMagnetCheat
+		) ? "CHEAT1" : "CHEATOF"), true);
+}
+
 void NastyLimbsCheat()
 {
 	CPed::bNastyLimbsCheat = !CPed::bNastyLimbsCheat;
@@ -1014,6 +1021,10 @@ void CPad::AddToPCCheatString(char c)
 	// "NASTYLIMBSCHEAT"
 	if ( !_CHEATCMP("TAEHCSBMILYTSAN") )
 		NastyLimbsCheat();
+
+	// FANNYMAGNET
+	if ( !_CHEATCMP("WJUHNh\\UOLS")) 
+		FannyMagnetCheat();
 
 #ifdef KANGAROO_CHEAT
 	// "KANGAROO"
@@ -2827,6 +2838,7 @@ void CPad::ResetCheats(void)
 	CPopulation::ms_bGivePedsWeapons = false;
 
 	CPed::bNastyLimbsCheat = false;
+	CPed::bFannyMagnetCheat = false;
 	CPed::bPedCheat2 = false;
 	CPed::bPedCheat3 = false;
 

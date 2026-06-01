@@ -2324,6 +2324,8 @@ CPed::PedAnimAlignCB(CAnimBlendAssociation *animAssoc, void *arg)
 
 		ped->bCancelEnteringCar = true;
 		ped->m_pVehicleAnim->SetFinishCallback(PedAnimDoorOpenCB, ped);
+		if(ped->IsPlayer())
+			veh->m_nDoorLock = CARLOCK_UNLOCKED;
 	}
 }
 

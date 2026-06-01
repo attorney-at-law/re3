@@ -687,6 +687,7 @@ void ChittyChittyBangBangCheat();
 void StrongGripCheat();
 void NastyLimbsCheat();
 void FreezeTimerCheat();
+void FannyMagnetCheat();
 
 DebugMenuEntry *carCol1;
 DebugMenuEntry *carCol2;
@@ -916,6 +917,7 @@ DebugMenuPopulate(void)
 		DebugMenuAddCmd("Cheats", "Strong grip", StrongGripCheat);
 		DebugMenuAddCmd("Cheats", "Nasty limbs", NastyLimbsCheat);
 		DebugMenuAddCmd("Cheats", "Freeze Timer", FreezeTimerCheat);
+		DebugMenuAddCmd("Cheats", "Attractive Player", FannyMagnetCheat);
 
 		static int spawnCarId = MI_LANDSTAL;
 		e = DebugMenuAddVar("Spawn", "Spawn Car ID", &spawnCarId, nil, 1, MI_LANDSTAL, MI_GHOST, carnames);

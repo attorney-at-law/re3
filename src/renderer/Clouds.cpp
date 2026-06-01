@@ -342,6 +342,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 		ms_colourTop.g = 50;
 		ms_colourTop.b = 50;
 		ms_colourTop.a = 255;
+/*
 		if(gbShowCollisionPolys){
 			if(CTimer::GetFrameCounter() & 1){
 				ms_colourTop.r = 0;
@@ -353,6 +354,7 @@ CClouds::RenderBackground(int16 topred, int16 topgreen, int16 topblue,
 				ms_colourTop.b = 255;
 			}
 		}
+*/
 		ms_colourBottom = ms_colourTop;
 		CRect r(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		CSprite2d::DrawRect(r, ms_colourBottom, ms_colourBottom, ms_colourTop, ms_colourTop);

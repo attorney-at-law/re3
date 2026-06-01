@@ -190,7 +190,7 @@ CRenderer::RenderOneNonRoad(CEntity *e)
 
 #ifndef MASTER
 	if(gbShowCollisionPolys){
-		if(!e->IsVehicle()){
+		if(!e->IsVehicle() && !e->IsPed()) {
 			CCollision::DrawColModel_Coloured(e->GetMatrix(), *CModelInfo::GetColModel(e->GetModelIndex()), e->GetModelIndex());
 			return;
 		}
