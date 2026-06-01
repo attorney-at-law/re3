@@ -6432,7 +6432,10 @@ CMenuManager::PrintMap(void)
 		else
 			ZOOM(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, true);
 	}
-	
+
+	if(CPad::GetPad(0)->GetTabJustDown()) 
+		CRadar::bShowHiddenPackages = !CRadar::bShowHiddenPackages;
+
 	if (fMapCenterX - fMapSize > SCREEN_WIDTH / 2)
 		fMapCenterX = fMapSize + SCREEN_WIDTH / 2;
 
