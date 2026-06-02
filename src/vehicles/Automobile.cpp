@@ -368,6 +368,7 @@ CAutomobile::ProcessControl(void)
 
 			if(GetStatus() == STATUS_PLAYER && !CRecordDataForChase::IsRecording())
 				DoDriveByShootings();
+				DoHoverSuspensionRatios();
 		}
 		break;
 
@@ -1973,6 +1974,8 @@ CAutomobile::Render(void)
 		}
 	}
 
+	RwRGBA hoverParticleCol = { 255, 255, 255, 32 };
+
 	// Rear right wheel
 	mat.Attach(RwFrameGetMatrix(m_aCarNodes[CAR_WHEEL_RB]));
 	pos.x = mat.GetPosition().x;
@@ -1982,6 +1985,30 @@ CAutomobile::Render(void)
 		mat.SetRotate(m_aWheelRotation[CARWHEEL_REAR_RIGHT], 0.0f, 0.3f*Sin(m_aWheelRotation[CARWHEEL_REAR_RIGHT]));
 	else
 		mat.SetRotateX(m_aWheelRotation[CARWHEEL_REAR_RIGHT]);
+	if(GetStatus() == STATUS_PLAYER){
+		if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_RIGHT] < 1.0f &&
+		   m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER){
+			// hovering on water
+			mat.RotateY(-HALFPI);
+			if((CTimer::GetFrameCounter()+CARWHEEL_REAR_RIGHT) & 1){
+				CParticle::AddParticle(PARTICLE_STEAM_NY_SLOWMOTION, m_aWheelColPoints[CARWHEEL_REAR_RIGHT].point,
+					0.5f*m_vecMoveSpeed+0.1f*GetRight(), nil, 0.4f, hoverParticleCol);
+			}else{
+				CParticle::AddParticle(PARTICLE_CAR_SPLASH, m_aWheelColPoints[CARWHEEL_REAR_RIGHT].point,
+					0.3f*m_vecMoveSpeed+0.15f*GetRight()+CVector(0.0f, 0.0f, 0.1f), nil, 0.15f, hoverParticleCol,
+					CGeneral::GetRandomNumberInRange(0.0f, 10.0f),
+					CGeneral::GetRandomNumberInRange(0.0f, 90.0f), 1);
+			}
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+		} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+			mat.RotateY(-HALFPI);
+#endif
+		}else{
+			// tilt wheel depending oh how much it presses on ground
+			float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+			mat.RotateY(Asin(Clamp(-groundOffset, -1.0f, 1.0f)));
+		}
+	}
 	mat.Scale(mi->m_wheelScale);
 	mat.Translate(pos);
 	mat.UpdateRW();
@@ -1997,6 +2024,30 @@ CAutomobile::Render(void)
 		mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI+0.3f*Sin(-m_aWheelRotation[CARWHEEL_REAR_LEFT]));
 	else
 		mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI);
+	if(GetStatus() == STATUS_PLAYER){
+		if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_LEFT] < 1.0f &&
+		   m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER){
+			// hovering on water
+			mat.RotateY(HALFPI);
+			if((CTimer::GetFrameCounter()+CARWHEEL_REAR_LEFT) & 1){
+				CParticle::AddParticle(PARTICLE_STEAM_NY_SLOWMOTION, m_aWheelColPoints[CARWHEEL_REAR_LEFT].point,
+					0.5f*m_vecMoveSpeed-0.1f*GetRight(), nil, 0.4f, hoverParticleCol);
+			}else{
+				CParticle::AddParticle(PARTICLE_CAR_SPLASH, m_aWheelColPoints[CARWHEEL_REAR_LEFT].point,
+					0.3f*m_vecMoveSpeed-0.15f*GetRight()+CVector(0.0f, 0.0f, 0.1f), nil, 0.15f, hoverParticleCol,
+					CGeneral::GetRandomNumberInRange(0.0f, 10.0f),
+					CGeneral::GetRandomNumberInRange(0.0f, 90.0f), 1);
+			}
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+		} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+			mat.RotateY(HALFPI);
+#endif
+		}else{
+			// tilt wheel depending oh how much it presses on ground
+			float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+			mat.RotateY(Asin(Clamp(groundOffset, -1.0f, 1.0f)));
+		}
+	}
 	mat.Scale(mi->m_wheelScale);
 	mat.Translate(pos);
 	mat.UpdateRW();
@@ -2013,6 +2064,21 @@ CAutomobile::Render(void)
 			mat.SetRotate(m_aWheelRotation[CARWHEEL_REAR_RIGHT], 0.0f, 0.3f*Sin(m_aWheelRotation[CARWHEEL_REAR_RIGHT]));
 		else
 			mat.SetRotateX(m_aWheelRotation[CARWHEEL_REAR_RIGHT]);
+		if(GetStatus() == STATUS_PLAYER){
+			if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_RIGHT] < 1.0f &&
+			   m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER){
+				// hovering on water
+				mat.RotateY(-HALFPI);
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+			} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+				mat.RotateY(-HALFPI);
+#endif
+			}else{
+				// tilt wheel depending oh how much it presses on ground
+				float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+				mat.RotateY(Asin(Clamp(-groundOffset, -1.0f, 1.0f)));
+			}
+		}
 		mat.Scale(mi->m_wheelScale);
 		mat.Translate(pos);
 		mat.UpdateRW();
@@ -2030,6 +2096,21 @@ CAutomobile::Render(void)
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI+0.3f*Sin(-m_aWheelRotation[CARWHEEL_REAR_LEFT]));
 		else
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI);
+		if(GetStatus() == STATUS_PLAYER){
+			if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_LEFT] < 1.0f &&
+			   m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER){
+				// hovering on water
+				mat.RotateY(HALFPI);
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+			} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+				mat.RotateY(HALFPI);
+#endif
+			}else{
+				// tilt wheel depending oh how much it presses on ground
+				float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+				mat.RotateY(Asin(Clamp(groundOffset, -1.0f, 1.0f)));
+			}
+		}
 		mat.Scale(mi->m_wheelScale);
 		mat.Translate(pos);
 		mat.UpdateRW();
@@ -2114,6 +2195,30 @@ CAutomobile::Render(void)
 			mat.SetRotate(m_aWheelRotation[CARWHEEL_FRONT_RIGHT], 0.0f, m_fSteerAngle+0.3f*Sin(m_aWheelRotation[CARWHEEL_FRONT_RIGHT]));
 		else
 			mat.SetRotate(m_aWheelRotation[CARWHEEL_FRONT_RIGHT], 0.0f, m_fSteerAngle);
+		if(GetStatus() == STATUS_PLAYER){
+			if(m_aSuspensionSpringRatioPrev[CARWHEEL_FRONT_RIGHT] < 1.0f &&
+			   m_aWheelColPoints[CARWHEEL_FRONT_RIGHT].surfaceB == SURFACE_WATER){
+				// hovering on water
+				mat.RotateY(-HALFPI);
+				if((CTimer::GetFrameCounter()+CARWHEEL_FRONT_RIGHT) & 1){
+					CParticle::AddParticle(PARTICLE_STEAM_NY_SLOWMOTION, m_aWheelColPoints[CARWHEEL_FRONT_RIGHT].point,
+						0.5f*m_vecMoveSpeed+0.1f*GetRight(), nil, 0.4f, hoverParticleCol);
+				}else{
+					CParticle::AddParticle(PARTICLE_CAR_SPLASH, m_aWheelColPoints[CARWHEEL_FRONT_RIGHT].point,
+						0.3f*m_vecMoveSpeed+0.15f*GetRight()+CVector(0.0f, 0.0f, 0.1f), nil, 0.15f, hoverParticleCol,
+						CGeneral::GetRandomNumberInRange(0.0f, 90.0f),
+						CGeneral::GetRandomNumberInRange(0.0f, 10.0f), 1);
+				}
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+			} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+				mat.RotateY(-HALFPI);
+#endif
+			}else{
+				// tilt wheel depending oh how much it presses on ground
+				float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+				mat.RotateY(Asin(Clamp(-groundOffset, -1.0f, 1.0f)));
+			}
+		}
 		mat.Scale(mi->m_wheelScale);
 		mat.Translate(pos);
 		mat.UpdateRW();
@@ -2129,6 +2234,30 @@ CAutomobile::Render(void)
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_FRONT_LEFT], 0.0f, PI+m_fSteerAngle+0.3f*Sin(-m_aWheelRotation[CARWHEEL_FRONT_LEFT]));
 		else
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_FRONT_LEFT], 0.0f, PI+m_fSteerAngle);
+		if(GetStatus() == STATUS_PLAYER){
+			if(m_aSuspensionSpringRatioPrev[CARWHEEL_FRONT_LEFT] < 1.0f &&
+			   m_aWheelColPoints[CARWHEEL_FRONT_LEFT].surfaceB == SURFACE_WATER){
+				// hovering on water
+				mat.RotateY(HALFPI);
+				if((CTimer::GetFrameCounter()+CARWHEEL_FRONT_LEFT) & 1){
+					CParticle::AddParticle(PARTICLE_STEAM_NY_SLOWMOTION, m_aWheelColPoints[CARWHEEL_FRONT_LEFT].point,
+						0.5f*m_vecMoveSpeed-0.1f*GetRight(), nil, 0.4f, hoverParticleCol);
+				}else{
+					CParticle::AddParticle(PARTICLE_CAR_SPLASH, m_aWheelColPoints[CARWHEEL_FRONT_LEFT].point,
+						0.3f*m_vecMoveSpeed-0.15f*GetRight()+CVector(0.0f, 0.0f, 0.1f), nil, 0.15f, hoverParticleCol,
+						CGeneral::GetRandomNumberInRange(0.0f, 90.0f),
+						CGeneral::GetRandomNumberInRange(0.0f, 10.0f), 1);
+				}
+#ifdef BETTER_ALLCARSAREDODO_CHEAT
+			} else if (bAllDodosCheat && m_nDriveWheelsOnGround == 0 && m_nDriveWheelsOnGroundPrev == 0) {
+				mat.RotateY(HALFPI);
+#endif
+			}else{
+				// tilt wheel depending oh how much it presses on ground
+				float groundOffset = pos.z + m_fHeightAboveRoad - 0.5f*mi->m_wheelScale;
+				mat.RotateY(Asin(Clamp(groundOffset, -1.0f, 1.0f)));
+			}
+		}
 		mat.Scale(mi->m_wheelScale);
 		mat.Translate(pos);
 		mat.UpdateRW();
@@ -2873,7 +3002,7 @@ CAutomobile::ProcessBuoyancy(void)
 		m_vecMoveSpeed *= waterResistance;
 		m_vecTurnSpeed *= waterResistance;
 
-		if(impulseRatio > 0.5f){
+		if(impulseRatio > 0.5f && GetStatus() != STATUS_PLAYER){
 			bIsInWater = true;
 			if(m_vecMoveSpeed.z < -0.1f)
 				m_vecMoveSpeed.z = -0.1f;
@@ -3109,6 +3238,44 @@ CAutomobile::DoDriveByShootings(void)
 	if(!lookingRight && m_weaponDoorTimerRight > 0.0f){
 		m_weaponDoorTimerRight = Max(m_weaponDoorTimerRight - CTimer::GetTimeStep()*0.1f, 0.0f);
 		ProcessOpenDoor(CAR_DOOR_RF, ANIM_STD_NUM, m_weaponDoorTimerRight);
+	}
+}
+
+void
+CAutomobile::DoHoverSuspensionRatios(void)
+{
+	int i;
+
+	if(GetUp().z < 0.1f)
+		return;
+
+	CColModel *colmodel = GetColModel();
+	for(i = 0; i < 4; i++){
+		float z, waterZ;
+		CVector upper = GetMatrix() * colmodel->lines[i].p0;
+		CVector lower = GetMatrix() * colmodel->lines[i].p1;
+		if(m_aSuspensionSpringRatio[i] < 1.0f)
+			z = m_aWheelColPoints[i].point.z;
+		else
+			z = -100.0f;
+		// see if touching water
+		if(CWaterLevel::GetWaterLevel(lower, &waterZ, false) &&
+		   waterZ > z && lower.z-1.0f < waterZ){
+			// compress spring
+			if(lower.z < waterZ){
+				if(upper.z < waterZ)
+					m_aSuspensionSpringRatio[i] = 0.0f;
+				else
+					m_aSuspensionSpringRatio[i] = (upper.z - waterZ)/(upper.z - lower.z);
+			}else
+				m_aSuspensionSpringRatio[i] = 0.99999f;
+
+			m_aWheelColPoints[i].point = CVector((lower.x - upper.x)*m_aSuspensionSpringRatio[i] + upper.x,
+			                                     (lower.y - upper.y)*m_aSuspensionSpringRatio[i] + upper.y,
+			                                     waterZ);
+			m_aWheelColPoints[i].normal = CVector(0.0f, 0.0f, 1.0f);
+			m_aWheelColPoints[i].surfaceB = SURFACE_WATER;
+		}
 	}
 }
 

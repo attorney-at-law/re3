@@ -147,6 +147,7 @@ public:
 	void VehicleDamage(float impulse, uint16 damagedPiece);
 	void ProcessBuoyancy(void);
 	void DoDriveByShootings(void);
+	void DoHoverSuspensionRatios(void);
 	int32 RcbanditCheckHitWheels(void);
 	int32 RcbanditCheck1CarWheels(CPtrList &list);
 	void PlaceOnRoadProperly(void);
