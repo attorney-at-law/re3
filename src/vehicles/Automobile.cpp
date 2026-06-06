@@ -1986,8 +1986,11 @@ CAutomobile::Render(void)
 	else
 		mat.SetRotateX(m_aWheelRotation[CARWHEEL_REAR_RIGHT]);
 	if(GetStatus() == STATUS_PLAYER){
-		if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_RIGHT] < 1.0f &&
-		   m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER){
+		if(m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+		   || bAllCarCheat
+#endif
+		) {
 			// hovering on water
 			mat.RotateY(-HALFPI);
 			if((CTimer::GetFrameCounter()+CARWHEEL_REAR_RIGHT) & 1){
@@ -2025,8 +2028,11 @@ CAutomobile::Render(void)
 	else
 		mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI);
 	if(GetStatus() == STATUS_PLAYER){
-		if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_LEFT] < 1.0f &&
-		   m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER){
+		if(m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+		   || bAllCarCheat
+#endif
+		) {
 			// hovering on water
 			mat.RotateY(HALFPI);
 			if((CTimer::GetFrameCounter()+CARWHEEL_REAR_LEFT) & 1){
@@ -2065,8 +2071,11 @@ CAutomobile::Render(void)
 		else
 			mat.SetRotateX(m_aWheelRotation[CARWHEEL_REAR_RIGHT]);
 		if(GetStatus() == STATUS_PLAYER){
-			if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_RIGHT] < 1.0f &&
-			   m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER){
+			if(m_aWheelColPoints[CARWHEEL_REAR_RIGHT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+			   || bAllCarCheat
+#endif
+			) {
 				// hovering on water
 				mat.RotateY(-HALFPI);
 #ifdef BETTER_ALLCARSAREDODO_CHEAT
@@ -2097,8 +2106,11 @@ CAutomobile::Render(void)
 		else
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_REAR_LEFT], 0.0f, PI);
 		if(GetStatus() == STATUS_PLAYER){
-			if(m_aSuspensionSpringRatioPrev[CARWHEEL_REAR_LEFT] < 1.0f &&
-			   m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER){
+			if(m_aWheelColPoints[CARWHEEL_REAR_LEFT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+			   || bAllCarCheat
+#endif
+			) {
 				// hovering on water
 				mat.RotateY(HALFPI);
 #ifdef BETTER_ALLCARSAREDODO_CHEAT
@@ -2196,8 +2208,11 @@ CAutomobile::Render(void)
 		else
 			mat.SetRotate(m_aWheelRotation[CARWHEEL_FRONT_RIGHT], 0.0f, m_fSteerAngle);
 		if(GetStatus() == STATUS_PLAYER){
-			if(m_aSuspensionSpringRatioPrev[CARWHEEL_FRONT_RIGHT] < 1.0f &&
-			   m_aWheelColPoints[CARWHEEL_FRONT_RIGHT].surfaceB == SURFACE_WATER){
+			if(m_aWheelColPoints[CARWHEEL_FRONT_RIGHT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+			   || bAllCarCheat
+#endif
+			) {
 				// hovering on water
 				mat.RotateY(-HALFPI);
 				if((CTimer::GetFrameCounter()+CARWHEEL_FRONT_RIGHT) & 1){
@@ -2235,8 +2250,11 @@ CAutomobile::Render(void)
 		else
 			mat.SetRotate(-m_aWheelRotation[CARWHEEL_FRONT_LEFT], 0.0f, PI+m_fSteerAngle);
 		if(GetStatus() == STATUS_PLAYER){
-			if(m_aSuspensionSpringRatioPrev[CARWHEEL_FRONT_LEFT] < 1.0f &&
-			   m_aWheelColPoints[CARWHEEL_FRONT_LEFT].surfaceB == SURFACE_WATER){
+			if(m_aWheelColPoints[CARWHEEL_FRONT_LEFT].surfaceB == SURFACE_WATER
+#ifdef ALLCARSHELI_CHEAT
+			   || bAllCarCheat
+#endif
+			) {
 				// hovering on water
 				mat.RotateY(HALFPI);
 				if((CTimer::GetFrameCounter()+CARWHEEL_FRONT_LEFT) & 1){
